@@ -1,0 +1,12 @@
+<h1>Your inventory item</h1>
+<h2>Your list is</h2>
+<ul>
+  @foreach (var item in @Model)
+  {
+    <li>@item.GetDescription()</li>
+  }
+</ul>
+
+<form action="/clear" method="post">
+  <button type="submit">Clear All your entry</button>
+</form>
