@@ -71,14 +71,16 @@ namespace Inventory
     public void Test_Find_FindsInventoryItemInDatabase()
     {
       //Arrange
-      InventoryItem testInventoryItem = new InventoryItem("Stickers");
-      testInventoryItem.Save();
+      InventoryItem item1 = new InventoryItem("Item1");
+      item1.Save();
+      InventoryItem item2 = new InventoryItem("Item2");
+      item2.Save();
 
       //Act
-      InventoryItem foundInventoryItem = InventoryItem.Find(testInventoryItem.GetId());
+      List<InventoryItem> foundInventoryItems = InventoryItem.Find("Item1");
 
       //Assert
-      Assert.Equal(testInventoryItem, foundInventoryItem);
+      Assert.Equal(item1, foundInventoryItems[0]);
     }
   }
 }

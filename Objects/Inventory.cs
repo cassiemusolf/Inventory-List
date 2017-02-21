@@ -39,8 +39,15 @@ namespace Inventory
         InventoryItem newInventoryItem = (InventoryItem) otherInventoryItem;
         bool idEquality = (this.GetId() == newInventoryItem.GetId());
         bool descriptionEquality = (this.GetDescription() == newInventoryItem.GetDescription());
+        Console.WriteLine(this.GetId());
+        Console.WriteLine(newInventoryItem.GetId());
         return (idEquality && descriptionEquality);
       }
+    }
+
+    public override int GetHashCode()
+    {
+         return this.GetDescription().GetHashCode();
     }
 
     public static List<InventoryItem> GetAll()
@@ -72,7 +79,7 @@ namespace Inventory
 
       return allInventoryItems;
     }
-    
+
     public void Save()
     {
       SqlConnection conn = DB.Connection();
@@ -107,16 +114,19 @@ namespace Inventory
       cmd.ExecuteNonQuery();
       conn.Close();
     }
-    public static InventoryItem Find(int id)
+
+    public static List<InventoryItem> Find(string itemDescriptionParameter)
     {
+      List<InventoryItem> allInventoryItems = new List<InventoryItem>{};
+
       SqlConnection conn = DB.Connection();
       conn.Open();
 
-      SqlCommand cmd = new SqlCommand("SELECT * FROM inventory WHERE id = @InventoryItemId;", conn);
-      SqlParameter itemIdParameter = new SqlParameter();
-      itemIdParameter.ParameterName = "@InventoryItemId";
-      itemIdParameter.Value = id.ToString();
-      cmd.Parameters.Add(itemIdParameter);
+      SqlCommand cmd = new SqlCommand("SELECT * FROM inventory WHERE description = @InventoryItemDescription;", conn);
+      SqlParameter newParameter = new SqlParameter();
+      newParameter.ParameterName = "@InventoryItemDescription";
+      newParameter.Value = itemDescriptionParameter;
+      cmd.Parameters.Add(newParameter);
       SqlDataReader rdr = cmd.ExecuteReader();
 
       int foundInventoryItemId = 0;
@@ -125,9 +135,10 @@ namespace Inventory
       {
         foundInventoryItemId = rdr.GetInt32(0);
         foundInventoryItemDescription = rdr.GetString(1);
+        InventoryItem newInventoryItem = new InventoryItem(foundInventoryItemDescription, foundInventoryItemId);
+        allInventoryItems.Add(newInventoryItem);
       }
-      InventoryItem foundInventoryItem = new InventoryItem(foundInventoryItemDescription, foundInventoryItemId);
-
+      // InventoryItem foundInventoryItem = new InventoryItem(foundInventoryItemDescription, foundInventoryItemId);
       if (rdr != null)
       {
         rdr.Close();
@@ -137,7 +148,7 @@ namespace Inventory
         conn.Close();
       }
 
-      return foundInventoryItem;
+      return allInventoryItems;
     }
   }
 }
